@@ -1,0 +1,80 @@
+# SMTP / POP3 / IMAP identification.
+rules:
+  - id: smtp-postfix
+    description: Postfix SMTP banner.
+    protocol: SMTP
+    product: Postfix
+    confidence: 0.9
+    priority: 190
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*\bESMTP\s+Postfix\b'
+
+  - id: smtp-exim
+    description: Exim SMTP banner with version.
+    protocol: SMTP
+    product: Exim
+    version: '${version}'
+    confidence: 0.9
+    priority: 190
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*\bExim\s+(?P<version>[0-9][0-9A-Za-z.]*)'
+
+  - id: smtp-microsoft
+    description: Microsoft SMTP service (Exchange / IIS SMTP).
+    protocol: SMTP
+    product: Microsoft SMTP
+    confidence: 0.85
+    priority: 185
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*\bMicrosoft ESMTP MAIL Service\b'
+
+  - id: smtp-generic
+    description: SMTP/ESMTP greeting without a recognised product.
+    protocol: SMTP
+    confidence: 0.75
+    priority: 60
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*(?:ESMTP|SMTP)\b'
+
+  - id: pop3-standard-port
+    description: +OK greeting on a POP3 port.
+    protocol: POP3
+    confidence: 0.85
+    priority: 180
+    match:
+      - type: port_in
+        ports: [110, 995]
+      - type: regex
+        pattern: '^\+OK\b'
+
+  - id: pop3-generic
+    description: +OK greeting without port context.
+    protocol: POP3
+    confidence: 0.6
+    priority: 15
+    match:
+      - type: regex
+        pattern: '^\+OK\b'
+
+  - id: imap-dovecot
+    description: Dovecot IMAP greeting.
+    protocol: IMAP
+    product: Dovecot
+    confidence: 0.9
+    priority: 185
+    match:
+      - type: regex
+        pattern: '(?i)^\* OK.*\bDovecot\b'
+
+  - id: imap-generic
+    description: IMAP OK/PREAUTH greeting.
+    protocol: IMAP
+    confidence: 0.75
+    priority: 60
+    match:
+      - type: regex
+        pattern: '(?i)^\* (?:OK|PREAUTH)\b'

@@ -1,0 +1,116 @@
+# Additional protocol coverage. These rules raise identification depth beyond
+# the mandatory set without changing any Go code.
+rules:
+  - id: tls-handshake
+    description: TLS record layer starting with a handshake record.
+    protocol: TLS
+    confidence: 0.85
+    priority: 90
+    match:
+      - type: regex
+        pattern: '(?s)^\x16\x03[\x00-\x04]'
+
+  - id: smb1
+    description: SMBv1 session header.
+    protocol: SMB
+    product: SMBv1
+    confidence: 0.95
+    priority: 95
+    match:
+      - type: regex
+        pattern: '(?s)^\xffSMB'
+
+  - id: smb2
+    description: SMBv2/3 header (usually behind a 4-byte NetBIOS session header).
+    protocol: SMB
+    product: SMBv2/3
+    confidence: 0.9
+    priority: 95
+    match:
+      - type: regex
+        pattern: '(?s)^.{0,4}?\xfeSMB'
+
+  - id: vnc
+    description: VNC/RFB protocol version banner.
+    protocol: VNC
+    product: VNC
+    version: '${version}'
+    confidence: 0.95
+    priority: 150
+    match:
+      - type: regex
+        pattern: '^RFB (?P<version>[0-9]{3}\.[0-9]{3})'
+
+  - id: rdp
+    description: RDP X.224 connection confirm.
+    protocol: RDP
+    confidence: 0.9
+    priority: 130
+    match:
+      - type: regex
+        pattern: '(?s)^\x03\x00\x00\x13\x0e\xd0\x00\x00\x124\x00'
+
+  - id: telnet
+    description: Login prompt on the standard telnet port.
+    protocol: Telnet
+    confidence: 0.7
+    priority: 70
+    match:
+      - type: port_in
+        ports: [23, 2323]
+      - type: regex
+        pattern: '(?i)(?:login:|password:|telnet)'
+
+  - id: memcached-version
+    description: VERSION reply on a memcached port.
+    protocol: Memcached
+    product: Memcached
+    version: '${version}'
+    confidence: 0.9
+    priority: 150
+    match:
+      - type: port_in
+        ports: [11211]
+      - type: regex
+        pattern: '(?i)^VERSION\s+(?P<version>[0-9][0-9A-Za-z.]*)'
+
+  - id: memcached-generic
+    description: Characteristic memcached text reply.
+    protocol: Memcached
+    product: Memcached
+    confidence: 0.7
+    priority: 140
+    match:
+      - type: port_in
+        ports: [11211]
+      - type: regex
+        pattern: '^(?:ERROR|CLIENT_ERROR|SERVER_ERROR|VALUE |END\r?$|STAT )'
+
+  - id: mqtt
+    description: MQTT CONNACK on the standard port.
+    protocol: MQTT
+    confidence: 0.8
+    priority: 120
+    match:
+      - type: port_in
+        ports: [1883, 8883]
+      - type: regex
+        pattern: '(?s)^\x20\x02\x00\x00'
+
+  - id: rtsp
+    description: RTSP status line.
+    protocol: RTSP
+    confidence: 0.8
+    priority: 120
+    match:
+      - type: regex
+        pattern: '^RTSP/[0-9.]+ [0-9]{3}\b'
+
+  - id: sip
+    description: SIP status line.
+    protocol: SIP
+    confidence: 0.8
+    priority: 120
+    match:
+      - type: regex
+        pattern: '^SIP/2\.0 [0-9]{3}\b'

@@ -1,0 +1,9 @@
+.git
+.gitignore
+.idea
+*.md
+*.exe
+*.test
+coverage.out
+testdata
+docker-compose.yml

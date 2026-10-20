@@ -1,0 +1,89 @@
+# FTP identification.
+#
+# FTP servers greet with a 220 reply. Product-specific rules run before the
+# generic FTP rule; SMTP also uses 220 and is separated in mail.yaml by a
+# higher priority and an explicit SMTP/ESMTP marker.
+rules:
+  - id: ftp-proftpd
+    description: ProFTPD with version.
+    protocol: FTP
+    product: ProFTPD
+    version: '${version}'
+    confidence: 0.9
+    priority: 170
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*?\bProFTPD[ /]v?(?P<version>[0-9][0-9A-Za-z.]*)'
+
+  - id: ftp-proftpd-generic
+    description: ProFTPD without an exposed version.
+    protocol: FTP
+    product: ProFTPD
+    confidence: 0.8
+    priority: 160
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*\bProFTPD\b'
+
+  - id: ftp-vsftpd
+    description: vsftpd with version.
+    protocol: FTP
+    product: vsftpd
+    version: '${version}'
+    confidence: 0.9
+    priority: 170
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*?\bvsftpd[ /]v?(?P<version>[0-9][0-9A-Za-z.]*)'
+
+  - id: ftp-vsftpd-generic
+    description: vsftpd without an exposed version.
+    protocol: FTP
+    product: vsftpd
+    confidence: 0.8
+    priority: 160
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*\bvsftpd\b'
+
+  - id: ftp-pure-ftpd
+    description: Pure-FTPd, optionally with version.
+    protocol: FTP
+    product: Pure-FTPd
+    version: '${version}'
+    confidence: 0.85
+    priority: 165
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*?\bPure-FTPd(?:\s+v?(?P<version>[0-9][0-9A-Za-z.]*))?'
+
+  - id: ftp-filezilla
+    description: FileZilla Server, optionally with version.
+    protocol: FTP
+    product: FileZilla Server
+    version: '${version}'
+    confidence: 0.9
+    priority: 170
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*?\bFileZilla Server(?:\s+v?(?P<version>[0-9][0-9A-Za-z.]*))?'
+
+  - id: ftp-microsoft
+    description: Microsoft FTP Service, optionally with version.
+    protocol: FTP
+    product: Microsoft FTP Service
+    version: '${version}'
+    confidence: 0.9
+    priority: 165
+    match:
+      - type: regex
+        pattern: '(?i)^220[ -].*?\bMicrosoft FTP Service(?:\s+v?(?P<version>[0-9][0-9A-Za-z.]*))?'
+
+  - id: ftp-generic
+    description: Generic FTP 220 greeting; product unknown.
+    protocol: FTP
+    confidence: 0.5
+    priority: 10
+    match:
+      - type: regex
+        pattern: '^220[ -][^\r\n]*'

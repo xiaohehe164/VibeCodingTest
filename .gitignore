@@ -1,0 +1,7 @@
+.idea/
+/server
+/client
+/healthcheck
+*.exe
+*.test
+coverage.out

@@ -1,0 +1,49 @@
+# MySQL / MariaDB identification.
+#
+# The initial handshake packet is: 3-byte payload length | 1-byte sequence id |
+# 0x0a (protocol version 10) | NUL-terminated server version | ...
+# Rules operate on the decoded byte stream, so both real NUL bytes and literal
+# "\x00" text escapes are supported by the engine.
+rules:
+  - id: mysql-mariadb
+    description: MariaDB handshake; strips the 5.5.5 compatibility prefix if present.
+    protocol: MySQL
+    product: MariaDB
+    version: '${version}'
+    confidence: 0.9
+    priority: 260
+    match:
+      - type: regex
+        pattern: '(?s)^.{0,8}?\x0a(?:5\.5\.5-)?(?P<version>[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z._-]*)-MariaDB'
+
+  - id: mysql-handshake
+    description: MySQL server greeting carrying an explicit version.
+    protocol: MySQL
+    product: MySQL
+    version: '${version}'
+    confidence: 0.9
+    priority: 250
+    match:
+      - type: regex
+        pattern: '(?s)^.{0,8}?\x0a(?P<version>[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z._-]*)\x00'
+
+  - id: mysql-handshake-unanchored
+    description: MySQL greeting preceded by extra scanner bytes; lower confidence.
+    protocol: MySQL
+    product: MySQL
+    version: '${version}'
+    confidence: 0.75
+    priority: 90
+    match:
+      - type: regex
+        pattern: '(?s).{0,16}?\x0a(?P<version>[0-9]+\.[0-9]+\.[0-9]+[0-9A-Za-z._-]*)\x00'
+
+  - id: mysql-auth-plugin
+    description: Handshake tail contains a MySQL authentication plugin name.
+    protocol: MySQL
+    product: MySQL
+    confidence: 0.75
+    priority: 80
+    match:
+      - type: regex
+        pattern: '(?i)(?:mysql_native_password|caching_sha2_password|mysql_clear_password)'

@@ -1,0 +1,37 @@
+# SSH identification.
+#
+# The first field of an SSH server identification is "SSH-<protoversion>-<software>".
+# We only claim a product when the software token is well known; anything that
+# merely looks like SSH falls through to the generic rule with lower confidence.
+rules:
+  - id: ssh-openssh
+    description: OpenSSH server; OS is parsed from the optional distribution suffix.
+    protocol: SSH
+    product: OpenSSH
+    version: '${version}'
+    os_hint: '${os}'
+    confidence: 0.95
+    priority: 150
+    match:
+      - type: regex
+        pattern: '^SSH-(?:2\.0|1\.99|1\.5)-OpenSSH_(?P<version>[0-9][0-9A-Za-z._+-]*)(?:\s+(?P<os>Ubuntu|Debian|Raspbian|Kali|CentOS|Red Hat|Rocky|AlmaLinux|Fedora|FreeBSD|OpenBSD|NetBSD|Solaris|Alpine|Arch|Gentoo|openSUSE|SUSE|Amazon|Oracle|Photon))?'
+
+  - id: ssh-dropbear
+    description: Dropbear SSH server.
+    protocol: SSH
+    product: Dropbear
+    version: '${version}'
+    confidence: 0.9
+    priority: 140
+    match:
+      - type: regex
+        pattern: '^SSH-(?:2\.0|1\.99)-dropbear(?:_(?P<version>[0-9][0-9A-Za-z._+-]*))?'
+
+  - id: ssh-generic
+    description: Fallback for any valid SSH identification line.
+    protocol: SSH
+    confidence: 0.75
+    priority: 20
+    match:
+      - type: regex
+        pattern: '^SSH-[0-9]+\.[0-9]+-[^\r\n]+'

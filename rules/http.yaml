@@ -1,0 +1,198 @@
+# HTTP identification.
+#
+# The Server header is the primary product signal. The header anchor accepts
+# a real CR/LF as well as the literal escape text "\r"/"\n" that appears when
+# scanners serialise binary banners into JSON without decoding them.
+rules:
+  - id: http-nginx
+    description: nginx; parenthesised platform becomes os_hint.
+    protocol: HTTP
+    product: nginx
+    version: '${version}'
+    os_hint: '${os}'
+    confidence: 0.9
+    priority: 200
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*nginx/(?P<version>[0-9][0-9A-Za-z._+-]*)(?:\s*\((?P<os>[^)\r\n]+)\))?'
+
+  - id: http-nginx-generic
+    description: nginx without a version in the Server header.
+    protocol: HTTP
+    product: nginx
+    confidence: 0.8
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*nginx\b'
+
+  - id: http-openresty
+    description: OpenResty (nginx distribution).
+    protocol: HTTP
+    product: openresty
+    version: '${version}'
+    os_hint: '${os}'
+    confidence: 0.85
+    priority: 198
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*openresty/(?P<version>[0-9][0-9A-Za-z._+-]*)(?:\s*\((?P<os>[^)\r\n]+)\))?'
+
+  - id: http-apache
+    description: Apache httpd; parenthesised platform becomes os_hint.
+    protocol: HTTP
+    product: Apache
+    version: '${version}'
+    os_hint: '${os}'
+    confidence: 0.9
+    priority: 200
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Apache/(?P<version>[0-9][0-9A-Za-z._+-]*)(?:\s*\((?P<os>[^)\r\n]+)\))?'
+
+  - id: http-apache-generic
+    description: Apache httpd without a version in the Server header.
+    protocol: HTTP
+    product: Apache
+    confidence: 0.8
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Apache\b'
+
+  - id: http-apache-coyote
+    description: Apache-Coyote connector, shipped with Apache Tomcat.
+    protocol: HTTP
+    product: Apache Tomcat
+    version: '${version}'
+    confidence: 0.85
+    priority: 196
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Apache-Coyote/(?P<version>[0-9][0-9A-Za-z._+-]*)'
+
+  - id: http-tomcat
+    description: Apache Tomcat explicit Server token.
+    protocol: HTTP
+    product: Apache Tomcat
+    version: '${version}'
+    confidence: 0.85
+    priority: 196
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Apache Tomcat/(?P<version>[0-9][0-9A-Za-z._+-]*)'
+
+  - id: http-jetty
+    description: Eclipse Jetty servlet container.
+    protocol: HTTP
+    product: Jetty
+    version: '${version}'
+    confidence: 0.85
+    priority: 190
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Jetty(?:[/ (](?P<version>[0-9][0-9A-Za-z._+-]*)\)?)?'
+
+  - id: http-iis
+    description: Microsoft Internet Information Services.
+    protocol: HTTP
+    product: Microsoft-IIS
+    version: '${version}'
+    confidence: 0.85
+    priority: 200
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Microsoft-IIS/(?P<version>[0-9][0-9A-Za-z._+-]*)'
+
+  - id: http-caddy
+    description: Caddy web server.
+    protocol: HTTP
+    product: Caddy
+    version: '${version}'
+    confidence: 0.85
+    priority: 190
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Caddy(?:/(?P<version>[0-9][0-9A-Za-z._+-]*))?'
+
+  - id: http-lighttpd
+    description: lighttpd web server.
+    protocol: HTTP
+    product: lighttpd
+    version: '${version}'
+    confidence: 0.85
+    priority: 190
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*lighttpd/(?P<version>[0-9][0-9A-Za-z._+-]*)'
+
+  - id: http-gunicorn
+    description: Gunicorn WSGI server.
+    protocol: HTTP
+    product: gunicorn
+    version: '${version}'
+    confidence: 0.85
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*gunicorn(?:/(?P<version>[0-9][0-9A-Za-z._+-]*))?'
+
+  - id: http-werkzeug
+    description: Werkzeug development server (Flask default).
+    protocol: HTTP
+    product: Werkzeug
+    version: '${version}'
+    confidence: 0.85
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Werkzeug/(?P<version>[0-9][0-9A-Za-z._+-]*)'
+
+  - id: http-envoy
+    description: Envoy proxy.
+    protocol: HTTP
+    product: envoy
+    confidence: 0.8
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*envoy\b'
+
+  - id: http-cloudflare
+    description: Cloudflare edge.
+    protocol: HTTP
+    product: Cloudflare
+    confidence: 0.8
+    priority: 170
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*cloudflare\b'
+
+  - id: http-kestrel
+    description: ASP.NET Core Kestrel.
+    protocol: HTTP
+    product: Kestrel
+    version: '${version}'
+    confidence: 0.85
+    priority: 180
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*Kestrel(?:/(?P<version>[0-9][0-9A-Za-z._+-]*))?'
+
+  - id: http-generic
+    description: Any HTTP response; no product information available.
+    protocol: HTTP
+    confidence: 0.6
+    priority: 10
+    match:
+      - type: regex
+        pattern: '^(?:HTTP/[0-9](?:\.[0-9])?\s+[1-5][0-9]{2}\b|HTTP/2\s+[0-9]{3}\b)'
+
+  - id: http-server-header
+    description: HTTP headers with a Server token no specific rule knows.
+    protocol: HTTP
+    confidence: 0.5
+    priority: 5
+    match:
+      - type: regex
+        pattern: '(?i)(?:^|[\r\n]|\\[rn])Server:\s*\S+'

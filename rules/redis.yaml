@@ -1,0 +1,57 @@
+# Redis identification.
+#
+# Redis has no greeting banner. Common scanner observations are RESP replies to
+# a probe (PING, GET, ...) or INFO output, which starts with "redis_version:".
+rules:
+  - id: redis-info
+    description: INFO output exposing the exact server version.
+    protocol: Redis
+    product: Redis
+    version: '${version}'
+    confidence: 0.95
+    priority: 300
+    match:
+      - type: regex
+        pattern: '(?i)\bredis_version:(?P<version>[0-9][0-9A-Za-z._-]*)'
+
+  - id: redis-pong
+    description: RESP simple string reply to PING.
+    protocol: Redis
+    product: Redis
+    confidence: 0.85
+    priority: 250
+    match:
+      - type: regex
+        pattern: '^\+PONG(?:\r?\n|$)'
+
+  - id: redis-noauth
+    description: Authentication required reply from an unauthenticated probe.
+    protocol: Redis
+    product: Redis
+    confidence: 0.85
+    priority: 245
+    match:
+      - type: regex
+        pattern: '(?i)^-NOAUTH\b'
+
+  - id: redis-error
+    description: Characteristic RESP error prefix.
+    protocol: Redis
+    product: Redis
+    confidence: 0.7
+    priority: 220
+    match:
+      - type: regex
+        pattern: '(?i)^-(?:ERR|WRONGTYPE|WRONGNUMBER|MOVED|ASK|BUSY|LOADING|MISCONF|MASTERDOWN|READONLY|NOPERM|DENIED|OOM|EXECABORT|NOSCRIPT)\b'
+
+  - id: redis-resp-port
+    description: RESP frame on a Redis port without a stronger signature.
+    protocol: Redis
+    product: Redis
+    confidence: 0.6
+    priority: 50
+    match:
+      - type: port_in
+        ports: [6379, 6380, 16379]
+      - type: regex
+        pattern: '^[+\-:$*]'
